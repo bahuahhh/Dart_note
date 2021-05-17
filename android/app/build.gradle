@@ -1,0 +1,106 @@
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterRoot = localProperties.getProperty('flutter.sdk')
+if (flutterRoot == null) {
+    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+//签名文件定义
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('app/key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+    defaultConfig {
+        ndk {
+            //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
+        }
+        applicationId "io.juwei.app"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    signingConfigs {
+        release {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            ndk {
+                //'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+            }
+            signingConfig signingConfigs.release
+        }
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    def appName = "epos_app"
+                    def buildType = variant.variantData.variantConfiguration.buildType.name
+                    def newName
+                    if (buildType == 'debug'){
+                        newName = "${appName}_${defaultConfig.versionName}_debug.apk"
+                    } else {
+                        newName = "${appName}_${releaseTime()}_${defaultConfig.versionName}.apk"
+                    }
+                    outputFileName = newName
+                }
+            }
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd")
+}
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'], exclude: [])
+    implementation 'com.sunmi:printerlibrary:1.0.8'
+    compileOnly 'com.google.zxing:core:3.3.0'
+
+}

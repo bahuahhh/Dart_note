@@ -1,0 +1,49 @@
+{
+  "systemVersion": "JuWei",
+  "activeByDefault":"test",
+  "encryptionMode":"",
+  "JuWei":{
+    "verificationMode": "1",
+    "businessType": "1",
+    "description":"巨为通用版本",
+    "profiles": {
+      "dev": {
+        "description":"开发版",
+        "urls": [
+          "delete from pos_urls;",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535680','373001','Business','http','test.jwsaas.cn:58081','api','0','1','业务系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535682','373001','WaiMai','http','test.jwsaas.cn:18082','wmapi','0','1','外卖系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535684','373001','MQTT','mqtt','116.62.57.54:18830','api','0','1','消息服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535686','373001','Transport','http','test.jwsaas.cn:19080','transport/api','0','1','配送服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535688','373001','Meal','http','test.jwsaas.cn:18085','meal/api','0','1','桌台服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');"
+        ],
+        "extend": {}
+      },
+      "test": {
+        "description":"内测版",
+        "urls": [
+          "delete from pos_urls;",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535680','373001','Business','http','test.jwsaas.cn:58081','api','0','1','业务系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535682','373001','WaiMai','http','test.jwsaas.cn:18082','wmapi','0','1','外卖系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535684','373001','MQTT','mqtt','116.62.57.54:18830','api','0','1','消息服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535686','373001','Transport','http','test.jwsaas.cn:19080','transport/api','0','1','配送服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535688','373001','Meal','http','test.jwsaas.cn:18085','meal/api','0','1','桌台服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');"
+        ],
+        "extend": {}
+      },
+      "release": {
+        "description":"正式版",
+        "urls": [
+          "delete from pos_urls;",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535680','373001','Business','http','api.jwsaas.com','api','0','1','业务系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535682','373001','WaiMai','http','api.jwsaas.com','wmapi','0','1','外卖系统默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535684','373001','MQTT','mqtt','116.62.57.54:18830','api','0','1','消息服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535686','373001','Transport','http','api.jwsaas.com','transport/api','0','1','配送服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');",
+          "insert into pos_urls (id,tenantId,apiType,protocol,url,contextPath,userDefined,enable,memo,ext1,ext2,ext3,createUser,createDate,modifyUser,modifyDate)values('874095336606535688','373001','Meal','http','api.jwsaas.com','meal/api','0','1','桌台服务默认地址','','','','sync','2019-10-19 16:12:12','sync','2019-10-19 16:12:12');"
+        ],
+        "extend": {}
+      }
+    }
+  }
+
+}
