@@ -7,6 +7,7 @@ import 'package:estore_app/pages/cashier_page.dart';
 import 'package:estore_app/pages/download_page.dart';
 import 'package:estore_app/pages/empty_page.dart';
 import 'package:estore_app/pages/home_page.dart';
+import 'package:estore_app/pages/inventory_page.dart';
 import 'package:estore_app/pages/login_page.dart';
 import 'package:estore_app/pages/pay_page.dart';
 import 'package:estore_app/pages/register_page.dart';
@@ -45,6 +46,9 @@ class RouterManager implements RouterProvider {
   static const String SHIFT_PAGE = "/shift";
 
   static const String EMPTY_PAGE = "/empty";
+
+  static const String INVENTORY_PAGE = "/inventory";
+
   @override
   void initRouter(FluroRouter router) {
     router.define(REGISTER_PAGE, handler: Handler(handlerFunc: (_, params) => RegisterPage()));
@@ -70,5 +74,9 @@ class RouterManager implements RouterProvider {
     router.define(SHIFT_PAGE, handler: Handler(handlerFunc: (_, params) => ShiftPage(parameters: params)));
 
     router.define(EMPTY_PAGE, handler: Handler(handlerFunc: (_, params) => EmptyPage()));
+
+    router.define(INVENTORY_PAGE, handler: Handler(handlerFunc: (_, params) => InventoryPage()));
+
+
   }
 }

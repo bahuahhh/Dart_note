@@ -31,6 +31,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
   //菜单
   final List menus = [
+
     {'icon': CommunityMaterialIcons.cash_register, 'color': '#00ACEE', 'title': '快速收银', 'route': RouterManager.CASHIER_PAGE},
     // {'icon': CommunityMaterialIcons.table_large, 'color': '#C4302B', 'title': '桌台开单', 'route': RouterManager.TABLE_PAGE},
     {'icon': CommunityMaterialIcons.food_fork_drink, 'color': '#C4302B', 'title': '点单助手', 'route': RouterManager.TABLE_ASSISTANT_PAGE},
@@ -39,13 +40,14 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     {'icon': CommunityMaterialIcons.cog_outline, 'color': '#0E76A8', 'title': '参数设置', 'route': RouterManager.SETTING_PAGE},
     {'icon': CommunityMaterialIcons.table_large, 'color': '#C4302B', 'title': '交班', 'route': RouterManager.SHIFT_PAGE},
     {'icon': CommunityMaterialIcons.logout_variant, 'color': '#C4302B', 'title': '注销', 'route': RouterManager.EMPTY_PAGE},
+    {'icon': CommunityMaterialIcons.logout_variant, 'color': '#FFD700', 'title': '盘点', 'route': RouterManager.INVENTORY_PAGE},
     // {'icon': 'home/avatar', 'title': '会员', 'route': null},
     // {'icon': 'home/avatar', 'title': '沽清', 'route': null},
     // {'icon': 'home/avatar', 'title': '上班', 'route': null},
   ];
 
   @override
-  void initState() {
+    void initState() {
     super.initState();
 
     initPlatformState();
@@ -58,9 +60,9 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       },
     );
 
-    BackButtonInterceptor.add(backButtonInterceptor, zIndex: 2, name: "home_page_interceptor");
+    BackButtonInterceptor.add(backButtonInterceptor,
+        zIndex: 2, name: "home_page_interceptor");
   }
-
   /// Initialize platform state.
   Future<void> initPlatformState() async {
     if (!mounted) return;

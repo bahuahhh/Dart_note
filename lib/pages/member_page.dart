@@ -33,7 +33,8 @@ class MemberPage extends StatefulWidget {
   _MemberPageState createState() => _MemberPageState();
 }
 
-class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateMixin {
+class _MemberPageState extends State<MemberPage>
+    with SingleTickerProviderStateMixin {
   //会员识别输入
   final FocusNode _focus = FocusNode();
   final TextEditingController _controller = TextEditingController();
@@ -54,7 +55,8 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
     assert(this._cashierBloc != null);
 
     //1.注册键盘
-    NumberKeyboard.register(buttonWidth: 130, buttonHeight: 120, buttonSpace: 10);
+    NumberKeyboard.register(
+        buttonWidth: 130, buttonHeight: 120, buttonSpace: 10);
     //2.初始化键盘
     KeyboardManager.init(context, this._keyboardBloc);
 
@@ -84,6 +86,8 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
     );
   }
 
+  final FocusNode _rawFocus = FocusNode();
+
   ///构建内容区域
   Widget _buildContent() {
     return Container(
@@ -104,25 +108,67 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
               decoration: BoxDecoration(
                 color: Constants.hexStringToColor("#FFFFFF"),
                 borderRadius: BorderRadius.all(Radius.circular(4.0)),
-                border: Border.all(width: 1, color: Constants.hexStringToColor("#D0D0D0")),
+                border: Border.all(
+                    width: 1, color: Constants.hexStringToColor("#D0D0D0")),
               ),
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: this._buildTextField(),
+                    child: RawKeyboardListener(
+                        focusNode: this._rawFocus,
+                        child: _buildTextField(),
+                        onKey: (RawKeyEvent event) async {
+                          if (event is RawKeyUpEvent && event.data is RawKeyEventDataAndroid) {
+                            RawKeyUpEvent rawKeyUpEvent = event;
+                            RawKeyEventDataAndroid rawKeyEventDataAndroid = event.data;
+                            FocusScope.of(context).autofocus(_rawFocus);
+                            String inputValue = _controller.text.trim();
+                            switch (rawKeyEventDataAndroid.keyCode) {
+                              case 66: //KEY_ENTER
+                                if (StringUtils.isBlank(inputValue)) {
+                                  ToastUtils.show("请输入手机号或会员码");
+                                  FocusScope.of(context).requestFocus(_focus);
+                                  return;
+                                }
+                                _getMemberInfo(inputValue);
+                                break;
+                              case 67: //KEY_BACKSPACE
+                                inputValue = inputValue.substring(0,inputValue.length - 1);
+                                inputValue += rawKeyUpEvent.logicalKey.keyLabel.toString();
+                                _controller.value = _controller.value.copyWith(
+                                  text: inputValue,
+                                  // 保持光标在最后
+                                  selection: TextSelection(
+                                      affinity: TextAffinity.downstream,
+                                      baseOffset:inputValue.length,
+                                      extentOffset: inputValue.length),
+                                );
+                                break;
+                              default:
+                                inputValue += rawKeyUpEvent.logicalKey.keyLabel.toString();
+                                _controller.value = _controller.value.copyWith(
+                                  text: inputValue,
+                                  // 保持光标在最后
+                                  selection: TextSelection(
+                                      affinity: TextAffinity.downstream,
+                                      baseOffset:inputValue.length,
+                                      extentOffset: inputValue.length),
+                                );
+                            }
+                          }}),
                   ),
                   InkWell(
                     onTap: () async {
-                      var scanResult = await BarcodeScanner.scan(options: scanOptions);
+                      var scanResult =await BarcodeScanner.scan(options: scanOptions);
                       if (scanResult.type == ResultType.Barcode) {
                         //扫码成功
                         var format = scanResult.format;
                         var memberCode = scanResult.rawContent;
                         FLogger.info("会员认证识别到${format.name}码,内容:$memberCode");
-
                         _controller.value = _controller.value.copyWith(
                           text: memberCode,
-                          selection: TextSelection(baseOffset: 0, extentOffset: memberCode.length),
+                          selection: TextSelection(
+                              baseOffset: 0, extentOffset: memberCode.length),
                           composing: TextRange.empty,
                         );
                         FocusScope.of(context).requestFocus(_focus);
@@ -131,7 +177,8 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
                       } else if (scanResult.type == ResultType.Cancelled) {
                         FLogger.warn("收银员放弃扫码");
                       } else {
-                        FLogger.warn("无法识别的条码,收银员扫码发生未知错误<${scanResult.formatNote}>");
+                        FLogger.warn(
+                            "无法识别的条码,收银员扫码发生未知错误<${scanResult.formatNote}>");
                         ToastUtils.show("无法识别的条码");
                       }
                     },
@@ -154,7 +201,9 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
                     return true;
                   },
                   builder: (context, state) {
-                    return state.keyboard == null ? Container() : state.keyboard.builder(context, state.controller);
+                    return state.keyboard == null
+                        ? Container()
+                        : state.keyboard.builder(context, state.controller);
                   }),
             ),
           ),
@@ -162,6 +211,7 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
       ),
     );
   }
+
 
   ///构建商品搜索框
   Widget _buildTextField() {
@@ -179,15 +229,25 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
         decoration: InputDecoration(
           contentPadding: Constants.paddingSymmetric(horizontal: 15),
           hintText: "请输入手机号或会员码",
-          hintStyle: TextStyles.getTextStyle(color: Constants.hexStringToColor("#999999"), fontSize: 32),
+          hintStyle: TextStyles.getTextStyle(
+              color: Constants.hexStringToColor("#999999"), fontSize: 32),
           filled: true,
           fillColor: Constants.hexStringToColor("#FFFFFF"),
-          disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(0)), borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
-          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(0)), borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
-          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(0)), borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
+          disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(0)),
+              borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
+          enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(0)),
+              borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
+          focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(0)),
+              borderSide: BorderSide(color: Colors.transparent, width: 0.0)),
         ),
 
-        inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(24)],
+        inputFormatters: <TextInputFormatter>[
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(24)
+        ],
         keyboardType: NumberKeyboard.inputType,
         textInputAction: TextInputAction.done,
         maxLines: 1,
@@ -211,7 +271,8 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
       height: Constants.getAdapterHeight(90.0),
       decoration: BoxDecoration(
         color: Constants.hexStringToColor("#7A73C7"),
-        border: Border.all(width: 0, color: Constants.hexStringToColor("#7A73C7")),
+        border:
+            Border.all(width: 0, color: Constants.hexStringToColor("#7A73C7")),
       ),
       child: Row(
         children: <Widget>[
@@ -219,7 +280,10 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
             child: Container(
               padding: Constants.paddingOnly(left: 15),
               alignment: Alignment.centerLeft,
-              child: Text("会员认证", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#FFFFFF"), fontSize: 32)),
+              child: Text("会员认证",
+                  style: TextStyles.getTextStyle(
+                      color: Constants.hexStringToColor("#FFFFFF"),
+                      fontSize: 32)),
             ),
           ),
           InkWell(
@@ -230,7 +294,9 @@ class _MemberPageState extends State<MemberPage> with SingleTickerProviderStateM
             },
             child: Padding(
               padding: Constants.paddingSymmetric(horizontal: 15),
-              child: Icon(CommunityMaterialIcons.close_box, color: Constants.hexStringToColor("#FFFFFF"), size: Constants.getAdapterWidth(56)),
+              child: Icon(CommunityMaterialIcons.close_box,
+                  color: Constants.hexStringToColor("#FFFFFF"),
+                  size: Constants.getAdapterWidth(56)),
             ),
           ),
         ],
@@ -281,13 +347,15 @@ class MemberViewPage extends StatefulWidget {
   final OnCancelCallback onCancel;
   final OnCloseCallback onClose;
 
-  MemberViewPage(this.orderObject, {this.onChanged, this.onCancel, this.onClose});
+  MemberViewPage(this.orderObject,
+      {this.onChanged, this.onCancel, this.onClose});
 
   @override
   _MemberViewPageState createState() => _MemberViewPageState();
 }
 
-class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProviderStateMixin {
+class _MemberViewPageState extends State<MemberViewPage>
+    with SingleTickerProviderStateMixin {
   CashierBloc _cashierBloc;
 
   @override
@@ -333,7 +401,8 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
             decoration: BoxDecoration(
               color: Constants.hexStringToColor("#F8F7FF"),
               borderRadius: BorderRadius.all(Radius.circular(4.0)),
-              border: Border.all(width: 1, color: Constants.hexStringToColor("#7A73C7")),
+              border: Border.all(
+                  width: 1, color: Constants.hexStringToColor("#7A73C7")),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -345,11 +414,14 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                       children: <Widget>[
                         Align(
                           alignment: Alignment.topCenter,
-                          child: (widget.orderObject.member == null || StringUtils.isBlank(widget.orderObject.member.headImgUrl))
+                          child: (widget.orderObject.member == null ||
+                                  StringUtils.isBlank(
+                                      widget.orderObject.member.headImgUrl))
                               ? CircleAvatar(
                                   radius: Constants.getAdapterHeight(48),
                                   backgroundColor: Colors.white,
-                                  backgroundImage: ImageUtils.getAssetImage("home/member_header"),
+                                  backgroundImage: ImageUtils.getAssetImage(
+                                      "home/member_header"),
                                 )
                               : ClipOval(
                                   child: Image.network(
@@ -365,13 +437,33 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Text("${widget.orderObject.member == null ? "--" : widget.orderObject.member.name}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 32)),
+                              Text(
+                                  "${widget.orderObject.member == null ? "--" : widget.orderObject.member.name}",
+                                  style: TextStyles.getTextStyle(
+                                      color:
+                                          Constants.hexStringToColor("#333333"),
+                                      fontSize: 32)),
                               Space(height: Constants.getAdapterHeight(10)),
-                              Text("电话：${widget.orderObject.member == null ? "--" : widget.orderObject.member.mobile}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 28)),
+                              Text(
+                                  "电话：${widget.orderObject.member == null ? "--" : widget.orderObject.member.mobile}",
+                                  style: TextStyles.getTextStyle(
+                                      color:
+                                          Constants.hexStringToColor("#333333"),
+                                      fontSize: 28)),
                               Space(height: Constants.getAdapterHeight(10)),
-                              Text("卡号：${widget.orderObject.member == null ? "--" : widget.orderObject.member.defaultCard.cardNo}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 28)),
+                              Text(
+                                  "卡号：${widget.orderObject.member == null ? "--" : widget.orderObject.member.defaultCard.cardNo}",
+                                  style: TextStyles.getTextStyle(
+                                      color:
+                                          Constants.hexStringToColor("#333333"),
+                                      fontSize: 28)),
                               Space(height: Constants.getAdapterHeight(10)),
-                              Text("生日：${widget.orderObject.member == null ? "--" : widget.orderObject.member.birthday}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 28)),
+                              Text(
+                                  "生日：${widget.orderObject.member == null ? "--" : widget.orderObject.member.birthday}",
+                                  style: TextStyles.getTextStyle(
+                                      color:
+                                          Constants.hexStringToColor("#333333"),
+                                      fontSize: 28)),
                             ],
                           ),
                         ),
@@ -389,30 +481,21 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                             children: <Widget>[
                               Expanded(
                                 child: Center(
-                                  child: Text("会员余额", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 24)),
+                                  child: Text("会员余额",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 24)),
                                 ),
                               ),
                               Expanded(
                                 child: Center(
-                                  child: Text("${widget.orderObject.member == null ? "--" : widget.orderObject.member.totalAmount}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 32)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: Column(
-                            children: <Widget>[
-                              Expanded(
-                                child: Center(
-                                  child: Text("会员积分", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 24)),
-                                ),
-                              ),
-                              Expanded(
-                                child: Center(
-                                  child: Text("${widget.orderObject.member == null ? "--" : widget.orderObject.member.totalPoint}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 32)),
+                                  child: Text(
+                                      "${widget.orderObject.member == null ? "--" : widget.orderObject.member.totalAmount}",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 32)),
                                 ),
                               ),
                             ],
@@ -425,12 +508,48 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                             children: <Widget>[
                               Expanded(
                                 child: Center(
-                                  child: Text("会员等级", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 24)),
+                                  child: Text("会员积分",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 24)),
                                 ),
                               ),
                               Expanded(
                                 child: Center(
-                                  child: Text("${widget.orderObject.member == null ? "--" : widget.orderObject.member.memberLevelName}", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#333333"), fontSize: 32)),
+                                  child: Text(
+                                      "${widget.orderObject.member == null ? "--" : widget.orderObject.member.totalPoint}",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 32)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Container(
+                          child: Column(
+                            children: <Widget>[
+                              Expanded(
+                                child: Center(
+                                  child: Text("会员等级",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 24)),
+                                ),
+                              ),
+                              Expanded(
+                                child: Center(
+                                  child: Text(
+                                      "${widget.orderObject.member == null ? "--" : widget.orderObject.member.memberLevelName}",
+                                      style: TextStyles.getTextStyle(
+                                          color: Constants.hexStringToColor(
+                                              "#333333"),
+                                          fontSize: 32)),
                                 ),
                               ),
                             ],
@@ -452,16 +571,21 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                 MaterialButton(
                   child: Text(
                     "更换会员",
-                    style: TextStyles.getTextStyle(fontSize: 28, color: Constants.hexStringToColor("#FFFFFF")),
+                    style: TextStyles.getTextStyle(
+                        fontSize: 28,
+                        color: Constants.hexStringToColor("#FFFFFF")),
                   ),
                   minWidth: Constants.getAdapterWidth(240),
                   height: Constants.getAdapterHeight(80),
                   color: Constants.hexStringToColor("#7A73C7"),
                   textColor: Constants.hexStringToColor("#FFFFFF"),
-                  shape: RoundedRectangleBorder(side: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(4))),
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide.none,
+                      borderRadius: BorderRadius.all(Radius.circular(4))),
                   onPressed: () {
                     if (widget.onChanged != null) {
-                      var newOrderObject = OrderObject.clone(widget.orderObject);
+                      var newOrderObject =
+                          OrderObject.clone(widget.orderObject);
                       newOrderObject.member = null;
                       var args = new MemberArgs(newOrderObject);
 
@@ -473,16 +597,21 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
                 MaterialButton(
                   child: Text(
                     "取消会员",
-                    style: TextStyles.getTextStyle(fontSize: 28, color: Constants.hexStringToColor("#C773A8")),
+                    style: TextStyles.getTextStyle(
+                        fontSize: 28,
+                        color: Constants.hexStringToColor("#C773A8")),
                   ),
                   minWidth: Constants.getAdapterWidth(240),
                   height: Constants.getAdapterHeight(80),
                   color: Constants.hexStringToColor("#FFF4FB"),
                   textColor: Constants.hexStringToColor("#C773A8"),
-                  shape: RoundedRectangleBorder(side: BorderSide.none, borderRadius: BorderRadius.all(Radius.circular(4))),
+                  shape: RoundedRectangleBorder(
+                      side: BorderSide.none,
+                      borderRadius: BorderRadius.all(Radius.circular(4))),
                   onPressed: () {
                     if (widget.onCancel != null) {
-                      var newOrderObject = OrderObject.clone(widget.orderObject);
+                      var newOrderObject =
+                          OrderObject.clone(widget.orderObject);
                       newOrderObject.member = null;
 
                       var args = new MemberArgs(newOrderObject);
@@ -505,7 +634,8 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
       height: Constants.getAdapterHeight(90.0),
       decoration: BoxDecoration(
         color: Constants.hexStringToColor("#7A73C7"),
-        border: Border.all(width: 0, color: Constants.hexStringToColor("#7A73C7")),
+        border:
+            Border.all(width: 0, color: Constants.hexStringToColor("#7A73C7")),
       ),
       child: Row(
         children: <Widget>[
@@ -513,7 +643,10 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
             child: Container(
               padding: Constants.paddingOnly(left: 15),
               alignment: Alignment.centerLeft,
-              child: Text("会员信息", style: TextStyles.getTextStyle(color: Constants.hexStringToColor("#FFFFFF"), fontSize: 32)),
+              child: Text("会员信息",
+                  style: TextStyles.getTextStyle(
+                      color: Constants.hexStringToColor("#FFFFFF"),
+                      fontSize: 32)),
             ),
           ),
           InkWell(
@@ -524,7 +657,9 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
             },
             child: Padding(
               padding: Constants.paddingSymmetric(horizontal: 15),
-              child: Icon(CommunityMaterialIcons.close_box, color: Constants.hexStringToColor("#FFFFFF"), size: Constants.getAdapterWidth(56)),
+              child: Icon(CommunityMaterialIcons.close_box,
+                  color: Constants.hexStringToColor("#FFFFFF"),
+                  size: Constants.getAdapterWidth(56)),
             ),
           ),
         ],
@@ -532,3 +667,6 @@ class _MemberViewPageState extends State<MemberViewPage> with SingleTickerProvid
     );
   }
 }
+
+
+
